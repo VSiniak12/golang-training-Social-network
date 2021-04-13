@@ -20,4 +20,11 @@ What should be present in the code:
  - At least one JOIN (all other requests at your discretion);
  - Organize CRUD (create, read, update, delete) operations
 
+### Third part
+Add unit tests, code coverage must be 50% and higher.
+
+### Fourth part (Optional)
+Add migrations using goose library: https://github.com/pressly/goose
+
+
 #### Let me know if you have any questions ;)
