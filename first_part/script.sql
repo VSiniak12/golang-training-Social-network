@@ -19,7 +19,7 @@ alter table social_network.countries
 --create states
 create table social_network.states
 (
-    state_id   serial  not null
+    id_state   serial  not null
         constraint states_pk
             primary key,
     name       varchar not null,
@@ -31,13 +31,10 @@ create table social_network.states
 alter table social_network.states
     owner to postgres;
 
-create unique index states_state_id_uindex
-    on social_network.states (state_id);
-
 --create cities
 create table social_network.cities
 (
-    city_id  serial  not null
+    id_city  serial  not null
         constraint city_pk
             primary key,
     name     varchar not null,
@@ -62,9 +59,6 @@ create table social_network.groups
 alter table social_network.groups
     owner to postgres;
 
-create unique index groups_id_group_uindex
-    on social_network.groups (id_group);
-
 --create users
 create table social_network.users
 (
@@ -79,7 +73,7 @@ create table social_network.users
     first_name varchar not null,
     birthday   date    not null,
     city_id    integer not null
-        constraint "user_cities _city_id_fk"
+        constraint user_cities_city_id_fk
             references social_network.cities
 );
 
@@ -102,10 +96,7 @@ create table social_network.posts
 alter table social_network.posts
     owner to postgres;
 
-create unique index post_id_post_uindex
-    on social_network.posts (id_post);
-
----create messages
+--create messages
 create table social_network.messages
 (
     id_message   serial  not null
@@ -122,9 +113,6 @@ create table social_network.messages
 
 alter table social_network.messages
     owner to postgres;
-
-create unique index message_id_message_uindex
-    on social_network.messages (id_message);
 
 --create comments_posts
 create table social_network.comments_posts
@@ -145,49 +133,55 @@ create table social_network.comments_posts
 alter table social_network.comments_posts
     owner to postgres;
 
-create unique index comments_posts_comment_id_uindex
-    on social_network.comments_posts (comment_id);
-
---create lu_members_group
-create table social_network.lu_members_group
+--create members_group
+create table social_network.members_group
 (
+    id serial not null
+        constraint members_group_pk
+            primary key,
     group_id integer not null
-        constraint lu_members_group_groups_id_group_fk
+        constraint members_group_groups_id_group_fk
             references social_network.groups,
     user_id  integer not null
-        constraint lu_members_group_user_id_user_fk
+        constraint members_group_user_id_user_fk
             references social_network.users
 );
 
-alter table social_network.lu_members_group
+alter table social_network.members_group
     owner to postgres;
 
---create lu_friends
-create table social_network.lu_friends
+--create friends
+create table social_network.friends
 (
-    profile integer not null
-        constraint lu_friends_user_id_user_fk
+    id serial not null
+        constraint friends_pk
+            primary key,
+    profile_id integer not null
+        constraint friends_user_id_user_fk
             references social_network.users,
-    friend  integer not null
-        constraint lu_friends_user_id_user_fk_2
+    friend_id  integer not null
+        constraint friends_user_id_user_fk_2
             references social_network.users
 );
 
-alter table social_network.lu_friends
+alter table social_network.friends
     owner to postgres;
 
---create lu_administrator_group
-create table social_network.lu_administrator_group
+--create administrator_group
+create table social_network.administrator_group
 (
-    group_id         integer not null
-        constraint lu_administrator_group_groups_id_group_fk
+    id serial not null
+        constraint administrator_group_pk
+            primary key,
+    group_id integer not null
+        constraint administrator_group_groups_id_group_fk
             references social_network.groups,
     administrator_id integer not null
-        constraint lu_administrator_group_user_id_user_fk
+        constraint administrator_group_user_id_user_fk
             references social_network.users
 );
 
-alter table social_network.lu_administrator_group
+alter table social_network.administrator_group
     owner to postgres;
 
 --Insert in tables
@@ -258,24 +252,24 @@ VALUES ('Yes, of course', '2021-04-12', 2, 5);
 INSERT INTO social_network.comments_posts (text, date_write, user_write, post_id)
 VALUES ('You are hard-working', '2021-04-10', 3, 5);
 
---Insert lu_members_group
-INSERT INTO social_network.lu_members_group VALUES (1,2);
-INSERT INTO social_network.lu_members_group VALUES (1,5);
-INSERT INTO social_network.lu_members_group VALUES (3,2);
-INSERT INTO social_network.lu_members_group VALUES (2,1);
-INSERT INTO social_network.lu_members_group VALUES (5,3);
+--Insert members_group
+INSERT INTO social_network.members_group (group_id, user_id) VALUES (1,2);
+INSERT INTO social_network.members_group (group_id, user_id) VALUES (1,5);
+INSERT INTO social_network.members_group (group_id, user_id) VALUES (3,2);
+INSERT INTO social_network.members_group (group_id, user_id) VALUES (2,1);
+INSERT INTO social_network.members_group (group_id, user_id) VALUES (5,3);
 
---Insert lu_friends
-INSERT INTO social_network.lu_friends VALUES (1,2);
-INSERT INTO social_network.lu_friends VALUES (1,5);
-INSERT INTO social_network.lu_friends VALUES (3,1);
-INSERT INTO social_network.lu_friends VALUES (5,2);
-INSERT INTO social_network.lu_friends VALUES (4,3);
+--Insert friends
+INSERT INTO social_network.friends (profile_id, friend_id) VALUES (1,2);
+INSERT INTO social_network.friends (profile_id, friend_id) VALUES (1,5);
+INSERT INTO social_network.friends (profile_id, friend_id) VALUES (3,1);
+INSERT INTO social_network.friends (profile_id, friend_id) VALUES (5,2);
+INSERT INTO social_network.friends (profile_id, friend_id) VALUES (4,3);
 
---Insert lu_administrator_group
-INSERT INTO social_network.lu_administrator_group VALUES (1,2);
-INSERT INTO social_network.lu_administrator_group VALUES (2,3);
-INSERT INTO social_network.lu_administrator_group VALUES (3,4);
-INSERT INTO social_network.lu_administrator_group VALUES (4,1);
-INSERT INTO social_network.lu_administrator_group VALUES (5,5);
+--Insert administrator_group
+INSERT INTO social_network.administrator_group (group_id, administrator_id) VALUES (1,2);
+INSERT INTO social_network.administrator_group (group_id, administrator_id) VALUES (2,3);
+INSERT INTO social_network.administrator_group (group_id, administrator_id) VALUES (3,4);
+INSERT INTO social_network.administrator_group (group_id, administrator_id) VALUES (4,1);
+INSERT INTO social_network.administrator_group (group_id, administrator_id) VALUES (5,5);
 
