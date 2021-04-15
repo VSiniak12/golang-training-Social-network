@@ -25,7 +25,7 @@ create table social_network.states
     name       varchar not null,
     country_id integer not null
         constraint states_countries_country_id_fk
-            references social_network.countries
+            references social_network.countries on DELETE cascade
 );
 
 alter table social_network.states
@@ -40,7 +40,7 @@ create table social_network.cities
     name     varchar not null,
     state_id integer not null
         constraint "cities _states_state_id_fk"
-            references social_network.states
+            references social_network.states on DELETE cascade
 );
 
 alter table social_network.cities
