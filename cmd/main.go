@@ -1,11 +1,10 @@
 package main
 
 import (
-	"log"
-	"os"
-
 	"github.com/siniak/golang-training-Social-network/pkg/data"
 	"github.com/siniak/golang-training-Social-network/pkg/db"
+	"log"
+	"os"
 )
 
 var (
@@ -43,9 +42,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("can't connect to database, error: %v", err)
 	}
-	//userData := data.NewUserData(conn)
+	/*userData := data.NewUserData(conn)
 	//readAll
-	/*users, err := userData.ReadAll()
+	users, err := userData.ReadAll()
 	if err != nil {
 		log.Println(err)
 	}
@@ -85,7 +84,7 @@ func main() {
 		log.Println(err)
 	}*/
 
-	stateData := data.NewStateData(conn)
+	//stateData := data.NewStateData(conn)
 	//readAll
 	/*states, err := stateData.ReadAll()
 	if err != nil {
@@ -102,10 +101,10 @@ func main() {
 	}
 	fmt.Println("Inserted state id is:", id)*/
 	//Delete
-	err = stateData.Delete(6)
+	/*err = stateData.Delete(6)
 	if err != nil {
 		log.Println(err)
-	}
+	}*/
 	/*//update
 	err = stateData.Update(6, "Vietka")
 	if err != nil {

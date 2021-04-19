@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"gorm.io/gorm"
+	"github.com/jinzhu/gorm"
 )
 
 type UserData struct {
@@ -80,7 +80,8 @@ func (u UserData) Update(id int, value string) error {
 }
 
 func (u UserData) Add(user User) (int, error) {
-	u.db.Table("social_network.cities").Where("name = ?", user.CityName).Select("id_city").Find(&user.CityId)
+	u.db.Table("social_network.cities").Where("name = ?", user.CityName).
+		Select("id_city").Find(&user.CityId)
 	if user.CityId == 0 {
 		return -1, fmt.Errorf("city with name %s has not", user.CityName)
 	}

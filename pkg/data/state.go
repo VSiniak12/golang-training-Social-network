@@ -3,7 +3,7 @@ package data
 import (
 	"fmt"
 
-	"gorm.io/gorm"
+	"github.com/jinzhu/gorm"
 )
 
 type StateData struct {
@@ -52,7 +52,7 @@ func (s StateData) Update(id int, name string) error {
 	var state State
 	result := s.db.Where("id_state = ?", id).Find(&state)
 	if result.Error != nil {
-		return fmt.Errorf("can't delete state to database, error: %w", result.Error)
+		return fmt.Errorf("can't update state to database, error: %w", result.Error)
 	}
 	if state.IdState == 0 {
 		return fmt.Errorf("don't have state with id equals: %d", id)
