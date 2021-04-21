@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var testState = State{
-	IdState:   5,
+var testState = &State{
+	IdState:   17,
 	Name:      "Gomelskaia",
 	CountryId: 2,
 }
@@ -31,11 +31,11 @@ func TestStateData_ReadAll(t *testing.T) {
 	states, err := data.ReadAll()
 	assert.NoError(err)
 	assert.NotEmpty(states)
-	assert.Equal(states[0], testState)
+	assert.Equal(states[0], *testState)
 	assert.Len(states, 1)
 }
 
-func TestReadAllErr(t *testing.T) {
+func TestStateData_ReadAllErr(t *testing.T) {
 	assert := assert.New(t)
 	db, mock := NewMock()
 	defer db.Close()
@@ -44,10 +44,43 @@ func TestReadAllErr(t *testing.T) {
 		fmt.Println("Error with connection: ", err)
 	}
 	data := NewStateData(dbGorm)
-	mock.ExpectQuery(readAllStatesQuery).WillReturnError(errors.New("something went wrong..."))
+	mock.ExpectQuery(readAllStatesQuery).WillReturnError(errors.New("something went wrong in func ReadAll"))
 	states, err := data.ReadAll()
 	assert.Error(err)
 	assert.Empty(states)
+}
+
+func TestStateData_Read(t *testing.T) {
+	assert := assert.New(t)
+	db, mock := NewMock()
+	defer db.Close()
+	dbGorm, err := gorm.Open("postgres", db)
+	if err != nil {
+		fmt.Println("Error with connection: ", err)
+	}
+	data := NewStateData(dbGorm)
+	rows := sqlmock.NewRows([]string{"id_state", "name", "country_id"}).
+		AddRow(testState.IdState, testState.Name, testState.CountryId)
+	mock.ExpectQuery(readStateQuery).WillReturnRows(rows)
+	state, err := data.Read(17)
+	assert.NoError(err)
+	assert.NotEmpty(state)
+	assert.Equal(state, testState)
+}
+
+func TestStateData_ReadErr(t *testing.T) {
+	assert := assert.New(t)
+	db, mock := NewMock()
+	defer db.Close()
+	dbGorm, err := gorm.Open("postgres", db)
+	if err != nil {
+		fmt.Println("Error with connection: ", err)
+	}
+	data := NewStateData(dbGorm)
+	mock.ExpectQuery(readStateQuery).WillReturnError(errors.New("something went wrong in func Read"))
+	state, err := data.Read(17)
+	assert.Error(err)
+	assert.Empty(state)
 }
 
 func TestStateData_Add(t *testing.T) {
@@ -60,7 +93,7 @@ func TestStateData_Add(t *testing.T) {
 	}
 	data := NewStateData(dbGorm)
 	mock.ExpectBegin()
-	mock.ExpectExec(insertStatesQuery).
+	mock.ExpectExec(insertStateQuery).
 		WithArgs(testState.IdState, testState.Name, testState.CountryId).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
@@ -80,9 +113,9 @@ func TestAddErr(t *testing.T) {
 	}
 	data := NewStateData(dbGorm)
 	mock.ExpectBegin()
-	mock.ExpectExec(insertStatesQuery).
+	mock.ExpectExec(insertStateQuery).
 		WithArgs(testState.IdState, testState.Name, testState.CountryId).
-		WillReturnError(errors.New("something went wrong in func Add..."))
+		WillReturnError(errors.New("something went wrong in func Add"))
 	mock.ExpectCommit()
 	id, err := data.Add(testState)
 	assert.Error(err)
@@ -98,14 +131,14 @@ func TestStateData_Update(t *testing.T) {
 		fmt.Println("Error with connection: ", err)
 	}
 	data := NewStateData(dbGorm)
-	rows := mock.NewRows([]string{"id_state", "name", "country_id"}).
-		AddRow(testState.IdState, testState.Name, testState.CountryId)
-	mock.ExpectQuery(selectUpdateStatesQuery).WithArgs(testState.IdState).WillReturnRows(rows)
 	mock.ExpectBegin()
-	mock.ExpectExec(updateStatesQuery).WithArgs(testState.IdState).WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec(insertStateQuery).
+		WithArgs(testState.IdState, testState.Name, testState.CountryId).
+		WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectCommit()
-	err = data.Update(5, "Slava")
+	state, err := data.Update(testState)
 	assert.NoError(err)
+	assert.NotEqual(nil, state)
 }
 
 func TestUpdateErr(t *testing.T) {
@@ -116,12 +149,11 @@ func TestUpdateErr(t *testing.T) {
 	if err != nil {
 		fmt.Println("Error with connection: ", err)
 	}
+
 	data := NewStateData(dbGorm)
-	mock.ExpectQuery(selectUpdateStatesQuery).WithArgs(testState.IdState).
-		WillReturnError(errors.New("something went wrong in func Update..."))
-	err = data.Update(5, "Slava")
-	assert.Error(err)
-	err = data.Delete(0)
+	mock.ExpectQuery(insertStateQuery).WithArgs(testState.IdState).
+		WillReturnError(errors.New("something went wrong in func Update"))
+	_, err = data.Update(testState)
 	assert.Error(err)
 }
 
@@ -134,13 +166,15 @@ func TestStateData_Delete(t *testing.T) {
 		fmt.Println("Error with connection: ", err)
 	}
 	data := NewStateData(dbGorm)
+
 	rows := mock.NewRows([]string{"id_state", "name", "country_id"}).
 		AddRow(testState.IdState, testState.Name, testState.CountryId)
-	mock.ExpectQuery(selectUpdateStatesQuery).WithArgs(testState.IdState).WillReturnRows(rows)
+	mock.ExpectQuery(selectStatesWhereQuery).WithArgs(testState.IdState).WillReturnRows(rows)
 	mock.ExpectBegin()
-	mock.ExpectExec(deleteStatesQuery).WithArgs(testState.IdState).WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec(deleteStateQuery).WithArgs(testState.IdState).WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectCommit()
-	err = data.Delete(5)
+
+	err = data.Delete(17)
 	assert.NoError(err)
 	err = data.Delete(0)
 	assert.Error(err)
@@ -157,10 +191,10 @@ func TestDeleteErr(t *testing.T) {
 	data := NewStateData(dbGorm)
 	rows := mock.NewRows([]string{"id_state", "name", "country_id"}).
 		AddRow(testState.IdState, testState.Name, testState.CountryId)
-	mock.ExpectQuery(selectUpdateStatesQuery).WithArgs(testState.IdState).WillReturnRows(rows)
+	mock.ExpectQuery(selectStatesWhereQuery).WithArgs(testState.IdState).WillReturnRows(rows)
 	mock.ExpectBegin()
-	mock.ExpectExec(deleteStatesQuery).WithArgs(testState.IdState).
-		WillReturnError(errors.New("something went wrong in func Delete..."))
+	mock.ExpectExec(deleteStateQuery).WithArgs(testState.IdState).
+		WillReturnError(errors.New("something went wrong in func Delete"))
 	mock.ExpectCommit()
 	err = data.Delete(5)
 	assert.Error(err)

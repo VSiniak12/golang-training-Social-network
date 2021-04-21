@@ -1,9 +1,13 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
+	"github.com/siniak/golang-training-Social-network/pkg/api"
 	"github.com/siniak/golang-training-Social-network/pkg/data"
 	"github.com/siniak/golang-training-Social-network/pkg/db"
 	"log"
+	"net"
+	"net/http"
 	"os"
 )
 
@@ -42,72 +46,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("can't connect to database, error: %v", err)
 	}
-	/*userData := data.NewUserData(conn)
-	//readAll
-	users, err := userData.ReadAll()
+	r := mux.NewRouter()
+	stateData := data.NewStateData(conn)
+	api.ServeStateResource(*stateData, r)
+	userData := data.NewUserData(conn)
+	api.ServeUserResource(*userData, r)
+	r.Use(mux.CORSMethodMiddleware(r))
+	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {
-		log.Println(err)
+		log.Fatal("Server Listen port...")
 	}
-	log.Println("values: ", &users)*/
-	/*
-		//read
-		var readUser *data.User
-		readUser, err = userData.Read(45)
-		if err != nil {
-			log.Println(err)
-		}
-		log.Println(readUser)*/
-	/*//add
-	id, err := userData.Add(data.User{
-		Login:     "login6",
-		Password:  "1234",
-		Gender:    false,
-		Email:     "e6@mail.ru",
-		LastName:  "TestAdd",
-		FirstName: "TestAddF",
-		Birthday:   time.Date(2000, 3, 10, 0, 0, 0, 0, time.UTC),
-		CityName:      "Minsk",
-	})
-	if err != nil {
-		log.Println(err)
+	if err := http.Serve(listener, r); err != nil {
+		log.Fatal("Server has been crashed...")
 	}
-	fmt.Println("User id is: ", id)*/
-	/*//delete
-	err = userData.Delete(45)
-	if err != nil {
-		log.Println(err)
-	}
-	//*/
-	/*//update
-	err = userData.Update(46, "newLogin")
-	if err != nil {
-		log.Println(err)
-	}*/
-
-	//stateData := data.NewStateData(conn)
-	//readAll
-	/*states, err := stateData.ReadAll()
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println("values: ", &states)*/
-	//add
-	/*id, err:= stateData.Add(data.State{
-		Name:      "Kursk",
-		CountryId: 2,
-	})
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println("Inserted state id is:", id)*/
-	//Delete
-	/*err = stateData.Delete(6)
-	if err != nil {
-		log.Println(err)
-	}*/
-	/*//update
-	err = stateData.Update(6, "Vietka")
-	if err != nil {
-		log.Println(err)
-	}*/
 }
