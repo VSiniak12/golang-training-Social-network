@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/pressly/goose"
 	"github.com/siniak/golang-training-Social-network/pkg/api"
 	"github.com/siniak/golang-training-Social-network/pkg/data"
 	"github.com/siniak/golang-training-Social-network/pkg/db"
@@ -45,6 +46,13 @@ func main() {
 	conn, err := db.GetConnection(host, port, user, dbname, password, sslmode)
 	if err != nil {
 		log.Fatalf("can't connect to database, error: %v", err)
+	}
+
+	connDB, err := conn.DB()
+	connDB.Exec("SET search_path TO social_network")
+	err = goose.Up(connDB, "./pkg/db/migrations")
+	if err != nil {
+		log.Fatalf("can't connect to goose, error: %v", err)
 	}
 	r := mux.NewRouter()
 	stateData := data.NewStateData(conn)
