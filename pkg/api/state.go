@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/VSiniak12/golang-training-Social-network/pkg/data"
 	"github.com/gorilla/mux"
-	"github.com/siniak/golang-training-Social-network/pkg/data"
 )
 
 type stateApi struct {
@@ -46,7 +46,7 @@ func (a stateApi) getState(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Printf("problem with parse to int : %v\n", err)
+		log.Printf("problem with parse to int : %v", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -58,7 +58,7 @@ func (a stateApi) getState(writer http.ResponseWriter, request *http.Request) {
 	}
 	err = json.NewEncoder(writer).Encode(state)
 	if err != nil {
-		log.Printf("failed writing to JSON: %s\n", err)
+		log.Printf("failed writing to JSON: %s", err)
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -71,7 +71,7 @@ func (a stateApi) createState(writer http.ResponseWriter, request *http.Request)
 	state := new(data.State)
 	err := json.NewDecoder(request.Body).Decode(&state)
 	if err != nil {
-		log.Printf("failed reading JSON: %s\n", err)
+		log.Printf("failed reading JSON: %s", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -89,14 +89,14 @@ func (a stateApi) updateState(writer http.ResponseWriter, request *http.Request)
 	vars := mux.Vars(request)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Printf("problem with parse to int : %v\n", err)
+		log.Printf("problem with parse to int : %v", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	state := new(data.State)
 	err = json.NewDecoder(request.Body).Decode(&state)
 	if err != nil {
-		log.Printf("failed reading JSON: %s\n", err)
+		log.Printf("failed reading JSON: %s", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -114,7 +114,7 @@ func (a stateApi) deleteState(writer http.ResponseWriter, request *http.Request)
 	vars := mux.Vars(request)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Printf("problem with parse to int : %v\n", err)
+		log.Printf("problem with parse to int : %v", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}

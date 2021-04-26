@@ -1,15 +1,16 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
-	"github.com/pressly/goose"
-	"github.com/siniak/golang-training-Social-network/pkg/api"
-	"github.com/siniak/golang-training-Social-network/pkg/data"
-	"github.com/siniak/golang-training-Social-network/pkg/db"
 	"log"
 	"net"
 	"net/http"
 	"os"
+
+	"github.com/VSiniak12/golang-training-Social-network/pkg/api"
+	"github.com/VSiniak12/golang-training-Social-network/pkg/data"
+	"github.com/VSiniak12/golang-training-Social-network/pkg/db"
+	"github.com/gorilla/mux"
+	"github.com/pressly/goose"
 )
 
 var (
